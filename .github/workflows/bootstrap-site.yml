@@ -2,6 +2,9 @@ name: Bootstrap site files
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/bootstrap-site.yml
 
 permissions:
   contents: write
