@@ -18,7 +18,6 @@ jobs:
         run: |
           mkdir -p dist
           curl -fsSL https://barrylab.net/mew30/ -o dist/index.html
-          curl -fsSL https://barrylab.net/mew30/mew-ex-fur.png -o dist/mew-ex-fur.png
       - name: Commit site files
         run: |
           git config user.name "github-actions[bot]"
