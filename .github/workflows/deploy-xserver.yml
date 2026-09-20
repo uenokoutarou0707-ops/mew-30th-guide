@@ -1,0 +1,39 @@
+name: Deploy to XServer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "dist/**"
+      - ".github/workflows/deploy-xserver.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-mew30-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      XSERVER_HOST: ${{ secrets.XSERVER_HOST }}
+      XSERVER_USER: ${{ secrets.XSERVER_USER }}
+      XSERVER_PATH: ${{ secrets.XSERVER_PATH }}
+      XSERVER_SSH_KEY: ${{ secrets.XSERVER_SSH_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy site
+        if: env.XSERVER_HOST != '' && env.XSERVER_USER != '' && env.XSERVER_PATH != '' && env.XSERVER_SSH_KEY != ''
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$XSERVER_SSH_KEY" > ~/.ssh/xserver_deploy
+          chmod 600 ~/.ssh/xserver_deploy
+          ssh-keyscan -p 10022 "$XSERVER_HOST" >> ~/.ssh/known_hosts
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/xserver_deploy -p 10022" \
+            dist/ "$XSERVER_USER@$XSERVER_HOST:$XSERVER_PATH/"
