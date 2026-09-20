@@ -1,0 +1,25 @@
+name: Bootstrap site files
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download published site
+        run: |
+          mkdir -p dist
+          curl -fsSL https://barrylab.net/mew30/ -o dist/index.html
+          curl -fsSL https://barrylab.net/mew30/mew-ex-fur.png -o dist/mew-ex-fur.png
+      - name: Commit site files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dist
+          git diff --cached --quiet || git commit -m "Import published Mew 30th site"
+          git push
